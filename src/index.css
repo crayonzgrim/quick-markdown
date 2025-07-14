@@ -1,0 +1,78 @@
+:root {
+  --base03: #002b36;
+  --base02: #073642;
+  --base01: #586e75;
+  --base00: #657b83;
+  --base0: #839496;
+  --base1: #93a1a1;
+  --base2: #eee8d5;
+  --base3: #fdf6e3;
+
+  --yellow: #b58900;
+  --orange: #cb4b16;
+  --red: #dc322f;
+  --magenta: #d33682;
+  --violet: #6c71c4;
+  --blue: #268bd2;
+  --cyan: #2aa198;
+  --green: #859900;
+}
+
+body {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  overflow: hidden; /* 스크롤바 제거 */
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.panel.dark {
+  background-color: var(--base03);
+  color: var(--base0);
+}
+
+.panel.light {
+  background-color: var(--base3);
+  color: var(--base00);
+}
+
+.toolbar {
+  padding: 6px 10px;
+  display: flex;
+  gap: 8px;
+  background-color: var(--base02);
+  border-bottom: 1px solid var(--base01);
+  flex-shrink: 0;
+}
+
+.toolbar button {
+  padding: 4px 8px;
+  background-color: var(--base01);
+  color: var(--base3);
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.panel.light .toolbar {
+  background-color: var(--base2);
+  border-color: var(--base1);
+}
+
+.panel.light .toolbar button {
+  background-color: var(--base1);
+  color: var(--base03);
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.editor-container {
+  flex-grow: 1;
+  height: calc(100vh - 41px); /* 툴바 높이를 제외한 나머지 공간 */
+}
