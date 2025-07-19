@@ -41,14 +41,29 @@ function App() {
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) setText(saved);
+    const loadContent = async () => {
+      if (chrome?.storage?.local) {
+        const result = await chrome.storage.local.get([STORAGE_KEY]);
+        if (result[STORAGE_KEY]) setText(result[STORAGE_KEY]);
+      } else {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setText(saved);
+      }
+    };
+    loadContent();
   }, []);
 
   useEffect(() => {
-    if (text !== undefined) {
-      localStorage.setItem(STORAGE_KEY, text);
-    }
+    const saveContent = async () => {
+      if (text !== undefined) {
+        if (chrome?.storage?.local) {
+          await chrome.storage.local.set({ [STORAGE_KEY]: text });
+        } else {
+          localStorage.setItem(STORAGE_KEY, text);
+        }
+      }
+    };
+    saveContent();
   }, [text]);
 
   return (
