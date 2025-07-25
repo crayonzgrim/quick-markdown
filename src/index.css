@@ -24,6 +24,12 @@ body {
   overflow: hidden; /* 스크롤바 제거 */
 }
 
+#logo {
+  font-weight: bold;
+  text-shadow: 1px 1px var(--base3);
+  line-height: 1.5;
+}
+
 .panel {
   display: flex;
   flex-direction: column;
@@ -72,7 +78,152 @@ body {
   flex-grow: 1;
 }
 
+#popover {
+  position: absolute;
+  top: -80%;
+  right: calc(-100% + 350px);
+  width: max-content;
+  min-width: 250px;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  z-index: 1000;
+}
+
+#popover:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.panel.dark #popover {
+  background: var(--base02);
+  color: var(--base0);
+}
+
+.panel.light #popover {
+  background: var(--base2);
+  color: var(--base00);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.popover-item label {
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 70px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.input-group input {
+  width: 50px;
+  padding: 4px 6px;
+  border: none;
+  border-bottom: 1px solid var(--base1);
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  text-align: center;
+  outline: none;
+}
+
+.input-group span {
+  font-size: 12px;
+  color: var(--base1);
+}
+
+.contact-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-info span {
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.contact-info button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px;
+}
+
 .editor-container {
   flex-grow: 1;
-  height: calc(100vh - 41px); /* 툴바 높이를 제외한 나머지 공간 */
+  height: calc(100vh - 41px);
+  overflow: hidden;
+}
+
+/* MDEditor preview 스크롤 지원 */
+.w-md-editor-preview {
+  overflow: auto !important;
+}
+
+.wmde-markdown {
+  overflow: auto !important;
+  padding-bottom: 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* Allotment 패널의 높이도 조정 */
+.split-view-container .allotment-pane {
+  height: 100% !important;
+}
+
+/* MDEditor 전체 컨테이너 높이 조정 */
+.w-md-editor {
+  height: 100% !important;
+}
+
+/* 에디터와 프리뷰 폰트 사이즈 적용 */
+.panel .w-md-editor,
+.panel .w-md-editor *,
+.panel .w-md-editor .w-md-editor-text-textarea,
+.panel .w-md-editor .w-md-editor-text-input,
+.panel .w-md-editor .w-md-editor-text,
+.panel .w-md-editor .w-md-editor-preview,
+.panel .wmde-markdown,
+.panel .wmde-markdown * {
+  font-size: var(--editor-font-size, 14px) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 프리뷰 영역 모든 요소에 폰트 사이즈 적용 */
+.panel .wmde-markdown h1,
+.panel .wmde-markdown h2,
+.panel .wmde-markdown h3,
+.panel .wmde-markdown h4,
+.panel .wmde-markdown h5,
+.panel .wmde-markdown h6,
+.panel .wmde-markdown p,
+.panel .wmde-markdown li,
+.panel .wmde-markdown code,
+.panel .wmde-markdown pre,
+.panel .wmde-markdown blockquote,
+.panel .wmde-markdown span,
+.panel .wmde-markdown div {
+  font-size: var(--editor-font-size, 14px) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 에디터 텍스트 영역 직접 타겟팅 */
+.panel textarea.w-md-editor-text-textarea {
+  font-size: var(--editor-font-size, 14px) !important;
+  font-family: 'JetBrains Mono', monospace !important;
 }

@@ -1,14 +1,11 @@
 const PANEL_ID = 'markdown-panel';
-const RESIZE_HANDLE_ID = 'markdown-panel-resize-handle';
-const STORAGE_KEY_WIDTH = 'markdown-panel-width';
 
 let iframe: HTMLIFrameElement | null = null;
 
-function createPanel() {
+async function createPanel() {
   if (document.getElementById(PANEL_ID)) return;
 
-  const savedWidth = localStorage.getItem(STORAGE_KEY_WIDTH);
-  const width = savedWidth ? `${parseInt(savedWidth, 10)}px` : '600px';
+  const width = '624px';
 
   iframe = document.createElement('iframe');
   iframe.id = PANEL_ID;
@@ -35,7 +32,6 @@ function createPanel() {
     }
   });
 
-  createResizeHandle();
 }
 
 function removePanel() {
@@ -44,57 +40,15 @@ function removePanel() {
     panel.style.transform = 'translateX(100%)';
     setTimeout(() => {
       panel.remove();
-      const handle = document.getElementById(RESIZE_HANDLE_ID);
-      if (handle) handle.remove();
       iframe = null;
     }, 200);
   }
 }
 
-function createResizeHandle() {
-  const handle = document.createElement('div');
-  handle.id = RESIZE_HANDLE_ID;
-  handle.style.cssText = `
-    position: fixed;
-    top: 0;
-    right: ${iframe?.style.width || '600px'};
-    width: 8px;
-    height: 100vh;
-    cursor: col-resize;
-    z-index: 1000000;
-    user-select: none;
-  `;
-  document.body.appendChild(handle);
-
-  const onMouseMove = (e: MouseEvent) => {
-    const newWidth = window.innerWidth - e.clientX;
-    if (newWidth > 300) {
-      // 최소 너비
-      const newWidthPx = `${newWidth}px`;
-      if (iframe) {
-        iframe.style.width = newWidthPx;
-      }
-      handle.style.right = newWidthPx;
-    }
-  };
-
-  const onMouseUp = () => {
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-    if (iframe) {
-      localStorage.setItem(STORAGE_KEY_WIDTH, iframe.style.width);
-    }
-  };
-
-  handle.addEventListener('mousedown', () => {
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
-}
 
 // --- Event Listeners ---
 // background script와의 통신
-chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (message, _, sendResponse) => {
   if (message.type === 'is-panel-open') {
     sendResponse({ isOpen: !!iframe });
     return true;
@@ -103,7 +57,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     if (iframe) {
       removePanel();
     } else {
-      createPanel();
+      await createPanel();
     }
   }
 });
@@ -128,6 +82,8 @@ window.addEventListener('message', (e) => {
 });
 
 // 초기 실행 시 패널 생성
-if (!iframe) {
-  createPanel();
-}
+(async () => {
+  if (!iframe) {
+    await createPanel();
+  }
+})();
