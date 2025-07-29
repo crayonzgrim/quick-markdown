@@ -15,9 +15,8 @@ export default defineConfig({
       },
       output: {
         entryFileNames: 'src/[name].js',
-        chunkFileNames: 'src/[name].js',
-        assetFileNames: 'src/[name].[ext]',
-        manualChunks: undefined // 청크 분할 비활성화
+        chunkFileNames: 'src/chunks/[name].js',
+        assetFileNames: 'assets/[name].[ext]'
       }
     },
     outDir: 'dist',

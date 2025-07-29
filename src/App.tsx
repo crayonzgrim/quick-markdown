@@ -1,5 +1,5 @@
 import MDEditor, { commands } from '@uiw/react-md-editor';
-import { Allotment } from 'allotment';
+// import { Allotment } from 'allotment';
 import 'allotment/dist/style.css';
 import { useEffect, useState } from 'react';
 import rehypeExternalLinks from 'rehype-external-links';
@@ -7,11 +7,16 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import './index.css';
 import { getCurrentFormattedTime } from './utils/getCurrentFormattedTime';
 import {
+  createNote,
+  deleteNote,
   getConfig,
   getContent,
+  getNotes,
   migrateFromLocalStorage,
   setConfig,
-  setContent
+  setContent,
+  updateNote,
+  type Note
 } from './utils/storage';
 
 const customSchema = {
@@ -27,6 +32,12 @@ function App() {
   const [text, setText] = useState<string | undefined>('');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [fontSize, setFontSize] = useState(14);
+  const [storageError, setStorageError] = useState(false);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [currentNote, setCurrentNote] = useState<Note | null>(null);
+  const [showNoteList, setShowNoteList] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newNoteTitle, setNewNoteTitle] = useState('');
 
   const MIN_FONT_SIZE = 4;
   const MAX_FONT_SIZE = 100;
@@ -41,8 +52,8 @@ function App() {
   };
 
   const downloadMarkdown = () => {
-    const title = getCurrentFormattedTime();
-    const filename = title ?? 'note.md';
+    const title = currentNote?.title || getCurrentFormattedTime();
+    const filename = `${title}.md`;
 
     window.parent.postMessage(
       { type: 'download-markdown', content: text, filename },
@@ -50,14 +61,75 @@ function App() {
     );
   };
 
+  const handleCreateNote = async () => {
+    try {
+      console.log('Creating note with title:', newNoteTitle);
+      const note = await createNote(newNoteTitle || undefined);
+      console.log('Created note:', note);
+
+      if (note) {
+        const updatedNotes = await getNotes();
+        console.log('Updated notes:', updatedNotes);
+        setNotes(updatedNotes);
+        setCurrentNote(note);
+        setText(note.content);
+        setShowNoteList(false);
+      } else {
+        console.error('Failed to create note');
+        alert('노트 생성에 실패했습니다. 저장 공간을 확인해주세요.');
+      }
+    } catch (error: any) {
+      alert(`'노트 생성 중 오류가 발생했습니다: ' + ${error.message}`);
+    }
+    setShowCreateModal(false);
+    setNewNoteTitle('');
+  };
+
+  const handleSelectNote = (note: Note) => {
+    setCurrentNote(note);
+    setText(note.content);
+    setShowNoteList(false);
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    const success = await deleteNote(noteId);
+    if (success) {
+      const updatedNotes = await getNotes();
+      setNotes(updatedNotes);
+      if (currentNote?.id === noteId) {
+        setCurrentNote(null);
+        setText('');
+      }
+    }
+  };
+
+  const handleBackToList = () => {
+    setShowNoteList(true);
+    setCurrentNote(null);
+    setText('');
+  };
+
   useEffect(() => {
     const initializeData = async () => {
       // 마이그레이션 먼저 실행
       await migrateFromLocalStorage();
 
-      // 에디터 내용 로드
+      // 노트 목록 로드
+      const savedNotes = await getNotes();
+      setNotes(savedNotes);
+
+      // 기존 에디터 내용이 있다면 새 노트로 마이그레이션
       const savedText = await getContent('editor-content', '');
-      if (savedText) setText(savedText);
+      if (savedText && savedNotes.length === 0) {
+        const note = await createNote('이전 메모');
+        if (note) {
+          await updateNote(note.id, savedText);
+          const updatedNotes = await getNotes();
+          setNotes(updatedNotes);
+        }
+        // 기존 에디터 내용 삭제
+        await setContent('editor-content', '');
+      }
 
       // 폰트 사이즈 로드
       const savedFontSize = await getConfig('font-size', '14');
@@ -71,10 +143,22 @@ function App() {
   }, [MIN_FONT_SIZE, MAX_FONT_SIZE]);
 
   useEffect(() => {
-    if (text !== undefined) {
-      setContent('editor-content', text);
-    }
-  }, [text]);
+    if (text === undefined || !currentNote) return;
+
+    const timer = setTimeout(async () => {
+      const success = await updateNote(currentNote.id, text);
+      setStorageError(!success);
+      if (!success) {
+        console.warn('노트 저장에 실패했습니다. 용량 제한을 확인해주세요.');
+      } else {
+        // 노트 목록에서 업데이트된 시간 반영
+        const updatedNotes = await getNotes();
+        setNotes(updatedNotes);
+      }
+    }, 500); // 500ms 디바운스
+
+    return () => clearTimeout(timer);
+  }, [text, currentNote]);
 
   /** Render */
   return (
@@ -88,18 +172,37 @@ function App() {
         } as React.CSSProperties
       }
     >
+      {storageError && (
+        <div className="storage-error">
+          ⚠️ 저장 용량이 초과되어 내용이 저장되지 않았습니다. 텍스트를
+          줄여주세요.
+          <button onClick={() => setStorageError(false)}>×</button>
+        </div>
+      )}
       <div className="toolbar">
+        {!showNoteList && (
+          <button
+            onClick={handleBackToList}
+            style={{ background: 'transparent' }}
+          >
+            ←
+          </button>
+        )}
         <button onClick={toggleTheme} style={{ background: 'transparent' }}>
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
-        <button
-          onClick={downloadMarkdown}
-          style={{ background: 'transparent' }}
-        >
-          ⬇️
-        </button>
+        {currentNote && (
+          <button
+            onClick={downloadMarkdown}
+            style={{ background: 'transparent' }}
+          >
+            ⬇️
+          </button>
+        )}
         <div className="spacer" />
-        <div id="logo">Markdown Panel</div>
+        <div id="logo">
+          {showNoteList ? 'Notes' : currentNote?.title || 'Markdown Panel'}
+        </div>
         <div className="spacer" />
         <div style={{ position: 'relative' }}>
           <button
@@ -153,7 +256,52 @@ function App() {
         </button>
       </div>
       <div className="editor-container">
-        <Allotment defaultSizes={[500, 500]}>
+        {showNoteList ? (
+          <div className="notes-list">
+            <div className="notes-header">
+              <button
+                className="create-note-btn"
+                onClick={() => setShowCreateModal(true)}
+              >
+                + 새 노트
+              </button>
+            </div>
+            <div className="notes-items">
+              {notes.length === 0 ? (
+                <div className="empty-notes">
+                  노트가 없습니다. 새 노트를 만들어보세요!
+                </div>
+              ) : (
+                notes.map((note) => (
+                  <div
+                    key={note.id}
+                    className="note-item"
+                    onClick={() => handleSelectNote(note)}
+                  >
+                    <div className="note-title">{note.title}</div>
+                    <div className="note-preview">
+                      {note.content.substring(0, 100) || '내용 없음'}
+                    </div>
+                    <div className="note-meta">
+                      <span className="note-date">
+                        {new Date(note.updatedAt).toLocaleString('ko-KR')}
+                      </span>
+                      <button
+                        className="delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteNote(note.id);
+                        }}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        ) : (
           <MDEditor
             value={text}
             onChange={setText}
@@ -208,24 +356,31 @@ function App() {
               commands.help
             ]}
           />
-          <MDEditor.Markdown
-            source={text}
-            style={{
-              padding: '8px 16px 40px 16px',
-              fontSize: `${fontSize}px`,
-              height: '100%',
-              overflow: 'auto'
-            }}
-            rehypePlugins={[
-              [
-                rehypeExternalLinks,
-                { target: '_blank', rel: ['noopener', 'noreferrer'] }
-              ],
-              [rehypeSanitize, customSchema]
-            ]}
-          />
-        </Allotment>
+        )}
       </div>
+
+      {/* 노트 생성 모달 */}
+      {showCreateModal && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowCreateModal(false)}
+        >
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>새 노트 만들기</h3>
+            <input
+              type="text"
+              placeholder="제목 (비워두면 날짜/시간으로 설정)"
+              value={newNoteTitle}
+              onChange={(e) => setNewNoteTitle(e.target.value)}
+              autoFocus
+            />
+            <div className="modal-buttons">
+              <button onClick={() => setShowCreateModal(false)}>취소</button>
+              <button onClick={handleCreateNote}>생성</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

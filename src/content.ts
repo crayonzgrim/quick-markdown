@@ -5,7 +5,7 @@ let iframe: HTMLIFrameElement | null = null;
 async function createPanel() {
   if (document.getElementById(PANEL_ID)) return;
 
-  const width = '624px';
+  const width = '500px';
 
   iframe = document.createElement('iframe');
   iframe.id = PANEL_ID;
@@ -31,7 +31,6 @@ async function createPanel() {
       iframe.style.transform = 'translateX(0)';
     }
   });
-
 }
 
 function removePanel() {
@@ -44,7 +43,6 @@ function removePanel() {
     }, 200);
   }
 }
-
 
 // --- Event Listeners ---
 // background script와의 통신
