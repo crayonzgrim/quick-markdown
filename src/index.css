@@ -25,9 +25,38 @@ body {
 }
 
 #logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
-  text-shadow: 1px 1px var(--base3);
-  line-height: 1.5;
+}
+
+.title-edit {
+  display: flex;
+  align-items: center;
+}
+
+.title-edit input {
+  background: var(--base02);
+  color: var(--base0);
+  border: 1px solid var(--base01);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 14px;
+  font-weight: bold;
+  min-width: 150px;
+  text-align: center;
+}
+
+.panel.light .title-edit input {
+  background: var(--base2);
+  color: var(--base00);
+  border-color: var(--base1);
+}
+
+.title-edit input:focus {
+  outline: none;
+  border-color: var(--blue);
 }
 
 .panel {
@@ -204,13 +233,43 @@ body {
   font-family: 'JetBrains Mono', monospace !important;
 }
 
-/* 프리뷰 영역 모든 요소에 폰트 사이즈 적용 */
-.panel .wmde-markdown h1,
-.panel .wmde-markdown h2,
-.panel .wmde-markdown h3,
-.panel .wmde-markdown h4,
-.panel .wmde-markdown h5,
-.panel .wmde-markdown h6,
+/* 프리뷰 영역 기본 폰트 설정 */
+.panel .wmde-markdown {
+  font-size: var(--editor-font-size, 14px) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 헤딩은 기본 폰트 사이즈 기준으로 상대적 크기 적용 */
+.panel .wmde-markdown h1 {
+  font-size: calc(var(--editor-font-size, 14px) * 2.25) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h2 {
+  font-size: calc(var(--editor-font-size, 14px) * 1.875) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h3 {
+  font-size: calc(var(--editor-font-size, 14px) * 1.5) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h4 {
+  font-size: calc(var(--editor-font-size, 14px) * 1.25) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h5 {
+  font-size: calc(var(--editor-font-size, 14px) * 1.125) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h6 {
+  font-size: var(--editor-font-size, 14px) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
 .panel .wmde-markdown p,
 .panel .wmde-markdown li,
 .panel .wmde-markdown code,
@@ -218,7 +277,6 @@ body {
 .panel .wmde-markdown blockquote,
 .panel .wmde-markdown span,
 .panel .wmde-markdown div {
-  font-size: var(--editor-font-size, 14px) !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 
@@ -257,6 +315,9 @@ body {
 .notes-header {
   padding: 16px;
   border-bottom: 1px solid var(--base01);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .panel.light .notes-header {
@@ -280,6 +341,27 @@ body {
   background-color: var(--cyan);
 }
 
+.upload-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--green);
+  color: var(--base3);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.upload-btn:hover {
+  background-color: var(--yellow);
+}
+
 .notes-items {
   flex: 1;
   overflow-y: auto;
@@ -299,7 +381,9 @@ body {
   border-radius: 6px;
   margin-bottom: 8px;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
 }
 
 .panel.light .note-item {
@@ -460,3 +544,32 @@ body {
 .modal-buttons button:hover {
   opacity: 0.8;
 }
+
+.file-info {
+  padding: 12px;
+  background-color: var(--base01);
+  border-radius: 4px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.panel.light .file-info {
+  background-color: var(--base1);
+}
+
+.file-info strong {
+  color: var(--base1);
+}
+
+.panel.light .file-info strong {
+  color: var(--base01);
+}
+
+.file-info small {
+  color: var(--base0);
+}
+
+.panel.light .file-info small {
+  color: var(--base00);
+}
+

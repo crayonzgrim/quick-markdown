@@ -16,6 +16,7 @@ import {
   setConfig,
   setContent,
   updateNote,
+  updateNoteTitle,
   type Note
 } from './utils/storage';
 
@@ -38,6 +39,8 @@ function App() {
   const [showNoteList, setShowNoteList] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newNoteTitle, setNewNoteTitle] = useState('');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editingTitle, setEditingTitle] = useState('');
 
   const MIN_FONT_SIZE = 4;
   const MAX_FONT_SIZE = 100;
@@ -78,8 +81,12 @@ function App() {
         console.error('Failed to create note');
         alert('노트 생성에 실패했습니다. 저장 공간을 확인해주세요.');
       }
-    } catch (error: any) {
-      alert(`'노트 생성 중 오류가 발생했습니다: ' + ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Create note error:', error.message);
+      }
+
+      alert('노트 생성 중 오류가 발생했습니다: ');
     }
     setShowCreateModal(false);
     setNewNoteTitle('');
@@ -107,6 +114,68 @@ function App() {
     setShowNoteList(true);
     setCurrentNote(null);
     setText('');
+  };
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type === 'text/markdown' || file.name.endsWith('.md')) {
+      try {
+        const content = await file.text();
+        const fileName = file.name.replace('.md', '');
+
+        const note = await createNote(fileName);
+        if (note) {
+          await updateNote(note.id, content);
+          const updatedNotes = await getNotes();
+          setNotes(updatedNotes);
+          alert(`"${fileName}" 노트가 생성되었습니다.`);
+        } else {
+          alert('노트 생성에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('File upload error:', error);
+        alert('파일 업로드 중 오류가 발생했습니다.');
+      }
+    } else {
+      alert('마크다운 파일(.md)만 업로드할 수 있습니다.');
+    }
+
+    // 파일 input 초기화
+    event.target.value = '';
+  };
+
+  const handleTitleEdit = () => {
+    if (currentNote) {
+      setEditingTitle(currentNote.title);
+      setIsEditingTitle(true);
+    }
+  };
+
+  const handleTitleSave = async () => {
+    if (currentNote && editingTitle.trim()) {
+      const success = await updateNoteTitle(
+        currentNote.id,
+        editingTitle.trim()
+      );
+      if (success) {
+        setCurrentNote({ ...currentNote, title: editingTitle.trim() });
+        const updatedNotes = await getNotes();
+        setNotes(updatedNotes);
+      } else {
+        alert('제목 저장에 실패했습니다.');
+      }
+    }
+    setIsEditingTitle(false);
+    setEditingTitle('');
+  };
+
+  const handleTitleCancel = () => {
+    setIsEditingTitle(false);
+    setEditingTitle('');
   };
 
   useEffect(() => {
@@ -201,9 +270,48 @@ function App() {
         )}
         <div className="spacer" />
         <div id="logo">
-          {showNoteList ? 'Notes' : currentNote?.title || 'Markdown Panel'}
+          {showNoteList ? (
+            'Notes'
+          ) : isEditingTitle ? (
+            <div className="title-edit">
+              <input
+                type="text"
+                value={editingTitle}
+                onChange={(e) => setEditingTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleTitleSave();
+                  if (e.key === 'Escape') handleTitleCancel();
+                }}
+                onBlur={handleTitleSave}
+                autoFocus
+              />
+            </div>
+          ) : (
+            <span
+              onClick={handleTitleEdit}
+              style={{ cursor: 'pointer' }}
+              title="클릭하여 제목 수정"
+            >
+              {currentNote?.title || 'Markdown Panel'}
+            </span>
+          )}
         </div>
         <div className="spacer" />
+        <label
+          style={{
+            background: 'transparent',
+            cursor: 'pointer',
+            padding: '4px 8px'
+          }}
+        >
+          📁
+          <input
+            type="file"
+            accept=".md"
+            onChange={handleFileUpload}
+            style={{ display: 'none' }}
+          />
+        </label>
         <div style={{ position: 'relative' }}>
           <button
             popoverTarget="popover"
@@ -306,12 +414,10 @@ function App() {
             value={text}
             onChange={setText}
             height="100%"
-            preview="edit"
+            preview="live"
             autoFocus={true}
             data-color-mode={theme}
-            style={{
-              fontSize: `${fontSize}px`
-            }}
+            style={{ fontSize: `${fontSize}px` }}
             previewOptions={{
               rehypePlugins: [
                 [

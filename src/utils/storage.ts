@@ -102,6 +102,21 @@ export const updateNote = async (
   return await saveNotes(notes);
 };
 
+export const updateNoteTitle = async (
+  noteId: string,
+  title: string
+): Promise<boolean> => {
+  const notes = await getNotes();
+  const noteIndex = notes.findIndex((note) => note.id === noteId);
+
+  if (noteIndex === -1) return false;
+
+  notes[noteIndex].title = title;
+  notes[noteIndex].updatedAt = Date.now();
+
+  return await saveNotes(notes);
+};
+
 export const deleteNote = async (noteId: string): Promise<boolean> => {
   const notes = await getNotes();
   const filteredNotes = notes.filter((note) => note.id !== noteId);
