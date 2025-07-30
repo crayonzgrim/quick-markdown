@@ -6,6 +6,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [react()],
   build: {
+    minify: false, // Chrome 웹 스토어 리뷰를 위해 압축 비활성화
     rollupOptions: {
       input: {
         panel: resolve(__dirname, 'index.html'),
@@ -14,11 +15,12 @@ export default defineConfig({
       },
       output: {
         entryFileNames: 'src/[name].js',
-        chunkFileNames: 'src/[name].js',
-        assetFileNames: 'src/[name].[ext]'
+        chunkFileNames: 'src/chunks/[name].js',
+        assetFileNames: 'assets/[name].[ext]'
       }
     },
     outDir: 'dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    sourcemap: false // 소스맵 비활성화
   }
 });

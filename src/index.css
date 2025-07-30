@@ -24,6 +24,41 @@ body {
   overflow: hidden; /* 스크롤바 제거 */
 }
 
+#logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.title-edit {
+  display: flex;
+  align-items: center;
+}
+
+.title-edit input {
+  background: var(--base02);
+  color: var(--base0);
+  border: 1px solid var(--base01);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 14px;
+  font-weight: bold;
+  min-width: 150px;
+  text-align: center;
+}
+
+.panel.light .title-edit input {
+  background: var(--base2);
+  color: var(--base00);
+  border-color: var(--base1);
+}
+
+.title-edit input:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
 .panel {
   display: flex;
   flex-direction: column;
@@ -72,7 +107,469 @@ body {
   flex-grow: 1;
 }
 
+#popover {
+  position: absolute;
+  top: -80%;
+  right: calc(-100% + 350px);
+  width: max-content;
+  min-width: 250px;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  z-index: 1000;
+}
+
+#popover:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.panel.dark #popover {
+  background: var(--base02);
+  color: var(--base0);
+}
+
+.panel.light #popover {
+  background: var(--base2);
+  color: var(--base00);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.popover-item label {
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 70px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.input-group input {
+  width: 50px;
+  padding: 4px 6px;
+  border: none;
+  border-bottom: 1px solid var(--base1);
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  text-align: center;
+  outline: none;
+}
+
+.input-group span {
+  font-size: 12px;
+  color: var(--base1);
+}
+
+.contact-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-info span {
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.contact-info button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px;
+}
+
 .editor-container {
   flex-grow: 1;
-  height: calc(100vh - 41px); /* 툴바 높이를 제외한 나머지 공간 */
+  height: calc(100vh - 41px);
+  overflow: hidden;
 }
+
+/* MDEditor preview 스크롤 지원 */
+.w-md-editor-preview {
+  overflow: auto !important;
+}
+
+.wmde-markdown {
+  overflow: auto !important;
+  padding-bottom: 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* Allotment 패널의 높이도 조정 */
+.split-view-container .allotment-pane {
+  height: 100% !important;
+}
+
+/* MDEditor 전체 컨테이너 높이 조정 */
+.w-md-editor {
+  height: 100% !important;
+}
+
+/* 에디터와 프리뷰 폰트 사이즈 적용 */
+.panel .w-md-editor,
+.panel .w-md-editor *,
+.panel .w-md-editor .w-md-editor-text-textarea,
+.panel .w-md-editor .w-md-editor-text-input,
+.panel .w-md-editor .w-md-editor-text,
+.panel .w-md-editor .w-md-editor-preview,
+.panel .wmde-markdown,
+.panel .wmde-markdown * {
+  font-size: var(--editor-font-size, 14px) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 프리뷰 영역 기본 폰트 설정 */
+.panel .wmde-markdown {
+  font-size: var(--editor-font-size, 14px) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 헤딩은 기본 폰트 사이즈 기준으로 상대적 크기 적용 */
+.panel .wmde-markdown h1 {
+  font-size: calc(var(--editor-font-size, 14px) * 2.25) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h2 {
+  font-size: calc(var(--editor-font-size, 14px) * 1.875) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h3 {
+  font-size: calc(var(--editor-font-size, 14px) * 1.5) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h4 {
+  font-size: calc(var(--editor-font-size, 14px) * 1.25) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h5 {
+  font-size: calc(var(--editor-font-size, 14px) * 1.125) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown h6 {
+  font-size: var(--editor-font-size, 14px) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.panel .wmde-markdown p,
+.panel .wmde-markdown li,
+.panel .wmde-markdown code,
+.panel .wmde-markdown pre,
+.panel .wmde-markdown blockquote,
+.panel .wmde-markdown span,
+.panel .wmde-markdown div {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* 에디터 텍스트 영역 직접 타겟팅 */
+.panel textarea.w-md-editor-text-textarea {
+  font-size: var(--editor-font-size, 14px) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.storage-error {
+  background-color: var(--red);
+  color: var(--base3);
+  padding: 8px 12px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.storage-error button {
+  background: none;
+  border: none;
+  color: var(--base3);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+/* 노트 목록 스타일 */
+.notes-list {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--base01);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel.light .notes-header {
+  border-color: var(--base1);
+}
+
+.create-note-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--blue);
+  color: var(--base3);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.create-note-btn:hover {
+  background-color: var(--cyan);
+}
+
+.upload-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--green);
+  color: var(--base3);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.upload-btn:hover {
+  background-color: var(--yellow);
+}
+
+.notes-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.empty-notes {
+  text-align: center;
+  color: var(--base1);
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+.note-item {
+  padding: 12px;
+  border: 1px solid var(--base01);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.panel.light .note-item {
+  border-color: var(--base1);
+}
+
+.note-item:hover {
+  background-color: var(--base02);
+  border-color: var(--base00);
+}
+
+.panel.light .note-item:hover {
+  background-color: var(--base2);
+  border-color: var(--base0);
+}
+
+.note-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--base1);
+  font-size: 14px;
+}
+
+.panel.light .note-title {
+  color: var(--base01);
+}
+
+.note-preview {
+  font-size: 12px;
+  color: var(--base0);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel.light .note-preview {
+  color: var(--base00);
+}
+
+.note-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.note-date {
+  font-size: 11px;
+  color: var(--base01);
+}
+
+.panel.light .note-date {
+  color: var(--base1);
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+}
+
+/* 모달 스타일 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: var(--base02);
+  padding: 24px;
+  border-radius: 8px;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.panel.light .modal {
+  background-color: var(--base2);
+}
+
+.modal h3 {
+  margin: 0 0 16px 0;
+  color: var(--base1);
+}
+
+.panel.light .modal h3 {
+  color: var(--base01);
+}
+
+.modal input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--base01);
+  border-radius: 4px;
+  background-color: var(--base03);
+  color: var(--base0);
+  font-size: 14px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.panel.light .modal input {
+  border-color: var(--base1);
+  background-color: var(--base3);
+  color: var(--base00);
+}
+
+.modal input:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.modal-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.modal-buttons button:first-child {
+  background-color: var(--base01);
+  color: var(--base1);
+}
+
+.panel.light .modal-buttons button:first-child {
+  background-color: var(--base1);
+  color: var(--base01);
+}
+
+.modal-buttons button:last-child {
+  background-color: var(--blue);
+  color: var(--base3);
+}
+
+.modal-buttons button:hover {
+  opacity: 0.8;
+}
+
+.file-info {
+  padding: 12px;
+  background-color: var(--base01);
+  border-radius: 4px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.panel.light .file-info {
+  background-color: var(--base1);
+}
+
+.file-info strong {
+  color: var(--base1);
+}
+
+.panel.light .file-info strong {
+  color: var(--base01);
+}
+
+.file-info small {
+  color: var(--base0);
+}
+
+.panel.light .file-info small {
+  color: var(--base00);
+}
+
