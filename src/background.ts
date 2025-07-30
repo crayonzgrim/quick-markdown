@@ -2,36 +2,25 @@ interface MessageRequest {
   type: string;
 }
 
-const CONTENT_SCRIPT_FILE = 'src/content.js';
-const TOGGLE_MESSAGE_TYPE = 'toggle-panel';
 const RELOAD_MESSAGE_TYPE = 'reload-extension';
 
-// Utils
-const getCurrentTab = async (): Promise<chrome.tabs.Tab | null> => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return tab?.id ? tab : null;
-};
-
-const injectContentScript = async (tabId: number): Promise<void> => {
-  await chrome.scripting.executeScript({
-    target: { tabId },
-    files: [CONTENT_SCRIPT_FILE]
-  });
-};
-
-const sendToggleMessage = async (tabId: number): Promise<void> => {
-  await chrome.tabs.sendMessage(tabId, { type: TOGGLE_MESSAGE_TYPE });
-};
-
-const togglePanel = async (tab?: chrome.tabs.Tab): Promise<void> => {
-  const currentTab = tab || (await getCurrentTab());
-  if (!currentTab?.id) return;
+// Side Panel 토글 함수
+const toggleSidePanel = async (tab?: chrome.tabs.Tab): Promise<void> => {
+  const currentTab = tab || await getCurrentTab();
+  if (!currentTab?.windowId) return;
 
   try {
-    await sendToggleMessage(currentTab.id);
-  } catch {
-    await injectContentScript(currentTab.id);
+    // Side Panel 열기/닫기
+    await chrome.sidePanel.open({ windowId: currentTab.windowId });
+  } catch (error) {
+    console.error('Failed to toggle side panel:', error);
   }
+};
+
+// 현재 탭 가져오기
+const getCurrentTab = async (): Promise<chrome.tabs.Tab | null> => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  return tab || null;
 };
 
 // Message handler
@@ -42,11 +31,11 @@ const handleMessage = (request: MessageRequest): void => {
 };
 
 // Event listeners
-chrome.action.onClicked.addListener(togglePanel);
+chrome.action.onClicked.addListener(toggleSidePanel);
 
 chrome.commands.onCommand.addListener(async (command: string) => {
   if (command === 'toggle-markdown-panel') {
-    await togglePanel();
+    await toggleSidePanel();
   }
 });
 

@@ -50,10 +50,6 @@ function App() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const closePanel = () => {
-    window.parent.postMessage({ type: 'markdown-panel-close' }, '*');
-  };
-
   const downloadMarkdown = () => {
     const title = currentNote?.title || getCurrentFormattedTime();
     const filename = `${title}.md`;
@@ -284,13 +280,23 @@ function App() {
                 }}
                 onBlur={handleTitleSave}
                 autoFocus
+                style={{
+                  width: '120px',
+                  minWidth: '120px',
+                  maxWidth: '120px'
+                }}
               />
             </div>
           ) : (
             <span
               onClick={handleTitleEdit}
-              style={{ cursor: 'pointer' }}
               title="클릭하여 제목 수정"
+              style={{
+                width: '120px',
+                minWidth: '120px',
+                maxWidth: '120px',
+                cursor: 'pointer'
+              }}
             >
               {currentNote?.title || 'Markdown Panel'}
             </span>
@@ -359,9 +365,6 @@ function App() {
             </div>
           </div>
         </div>
-        <button onClick={closePanel} style={{ background: 'transparent' }}>
-          ❌
-        </button>
       </div>
       <div className="editor-container">
         {showNoteList ? (
@@ -377,7 +380,7 @@ function App() {
             <div className="notes-items">
               {notes.length === 0 ? (
                 <div className="empty-notes">
-                  노트가 없습니다. 새 노트를 만들어보세요!
+                  노트가 없습니다. <br /> 새 노트를 만들어보세요!
                 </div>
               ) : (
                 notes.map((note) => (
