@@ -50,10 +50,6 @@ function App() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const closePanel = () => {
-    window.parent.postMessage({ type: 'markdown-panel-close' }, '*');
-  };
-
   const downloadMarkdown = () => {
     const title = currentNote?.title || getCurrentFormattedTime();
     const filename = `${title}.md`;
@@ -66,13 +62,10 @@ function App() {
 
   const handleCreateNote = async () => {
     try {
-      console.log('Creating note with title:', newNoteTitle);
       const note = await createNote(newNoteTitle || undefined);
-      console.log('Created note:', note);
 
       if (note) {
         const updatedNotes = await getNotes();
-        console.log('Updated notes:', updatedNotes);
         setNotes(updatedNotes);
         setCurrentNote(note);
         setText(note.content);
@@ -176,6 +169,128 @@ function App() {
   const handleTitleCancel = () => {
     setIsEditingTitle(false);
     setEditingTitle('');
+  };
+
+  const generateUUID = (): string => {
+    if (crypto && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
+
+  const compressAndSaveImage = (
+    file: File,
+    maxWidth: number = 400,
+    maxHeight: number = 300,
+    quality: number = 0.5
+  ): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        try {
+          let { width, height } = img;
+
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.floor(width * ratio);
+            height = Math.floor(height * ratio);
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          if (!ctx) {
+            reject(new Error('Canvas context not available'));
+            return;
+          }
+
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to blob
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to create blob'));
+                return;
+              }
+
+              // Generate unique filename
+              const filename = `${generateUUID()}.png`;
+
+              // Create download link and trigger download
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = filename;
+              link.style.display = 'none';
+
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+
+              // Clean up
+              setTimeout(() => URL.revokeObjectURL(link.href), 100);
+
+              // Return the relative path for markdown
+              resolve(`images/${filename}`);
+            },
+            'image/png',
+            quality
+          );
+        } catch (error) {
+          reject(error);
+        } finally {
+          URL.revokeObjectURL(img.src);
+        }
+      };
+
+      img.onerror = () => reject(new Error('Image load failed'));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handlePaste = async (event: React.ClipboardEvent) => {
+    const items = event.clipboardData.items;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if (item.type.indexOf('image') !== -1) {
+        event.preventDefault();
+
+        const blob = item.getAsFile();
+        if (!blob) continue;
+
+        console.log('원본 이미지 크기:', blob.size, 'bytes');
+
+        try {
+          // Compress and save image as file
+          const imagePath = await compressAndSaveImage(blob);
+          console.log('이미지 저장 경로:', imagePath);
+
+          const imageMarkdown = `![Image](${imagePath})`;
+
+          // Insert at current cursor position or append
+          if (text !== undefined) {
+            setText(text + '\n' + imageMarkdown + '\n');
+          } else {
+            setText(imageMarkdown + '\n');
+          }
+        } catch (error) {
+          console.error('이미지 처리 실패:', error);
+          alert('이미지 처리 중 오류가 발생했습니다: ' + error);
+        }
+        break;
+      }
+    }
   };
 
   useEffect(() => {
@@ -284,13 +399,23 @@ function App() {
                 }}
                 onBlur={handleTitleSave}
                 autoFocus
+                style={{
+                  width: '120px',
+                  minWidth: '120px',
+                  maxWidth: '120px'
+                }}
               />
             </div>
           ) : (
             <span
               onClick={handleTitleEdit}
-              style={{ cursor: 'pointer' }}
               title="클릭하여 제목 수정"
+              style={{
+                width: '120px',
+                minWidth: '120px',
+                maxWidth: '120px',
+                cursor: 'pointer'
+              }}
             >
               {currentNote?.title || 'Markdown Panel'}
             </span>
@@ -359,9 +484,6 @@ function App() {
             </div>
           </div>
         </div>
-        <button onClick={closePanel} style={{ background: 'transparent' }}>
-          ❌
-        </button>
       </div>
       <div className="editor-container">
         {showNoteList ? (
@@ -377,7 +499,7 @@ function App() {
             <div className="notes-items">
               {notes.length === 0 ? (
                 <div className="empty-notes">
-                  노트가 없습니다. 새 노트를 만들어보세요!
+                  노트가 없습니다. <br /> 새 노트를 만들어보세요!
                 </div>
               ) : (
                 notes.map((note) => (
@@ -414,10 +536,11 @@ function App() {
             value={text}
             onChange={setText}
             height="100%"
-            preview="live"
+            preview="edit"
             autoFocus={true}
             data-color-mode={theme}
             style={{ fontSize: `${fontSize}px` }}
+            onPaste={handlePaste}
             previewOptions={{
               rehypePlugins: [
                 [
