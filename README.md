@@ -9,5 +9,5 @@
 #### TODO
 - [ ] 가로 사이즈 조절
 - [ ] 테마 추가
-- [ ] 로그인 없이 사용할 수 있는 chrome storage 저장
+- [x] 로그인 없이 사용할 수 있는 chrome storage 저장
 - [ ] 로그인이 필요한 연동을 위한 Google Drive 저장
