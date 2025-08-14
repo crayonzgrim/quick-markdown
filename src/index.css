@@ -322,7 +322,7 @@ body {
 
 /* 에디터 텍스트 영역 직접 타겟팅 */
 .panel textarea.w-md-editor-text-textarea {
-  font-size: var(--editor-font-size, 14px) !important;
+  font-size: var(--editor-font-size, 12px) !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Markdown Side Panel",
   "version": "1.0.0",
-  "description": "오른쪽 사이드에서 열리는 마크다운 에디터",
+  "description": "Simple markdown editor that opened in right side panel",
   "permissions": ["sidePanel", "storage"],
   "icons": {
     "16": "icon-16.png",

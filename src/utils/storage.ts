@@ -1,6 +1,5 @@
-// const isExtensionContext = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync;
+import type { Note } from '../types';
 
-// 설정값용 (동기화됨)
 export const setConfig = async (
   key: string,
   value: string | number | boolean
@@ -16,7 +15,6 @@ export const getConfig = async <T>(
   return result[key] !== undefined ? result[key] : defaultValue;
 };
 
-// 에디터 내용용 (동기화됨, 용량 제한에 주의)
 export const setContent = async (
   key: string,
   value: string
@@ -25,9 +23,9 @@ export const setContent = async (
     chrome.storage.sync.set({ [key]: value }, () => {
       if (chrome.runtime.lastError) {
         console.error('setContent Error:', chrome.runtime.lastError.message);
-        resolve(false); // 저장 실패 (용량 초과 등)
+        resolve(false);
       } else {
-        resolve(true); // 저장 성공
+        resolve(true);
       }
     });
   });
@@ -41,16 +39,6 @@ export const getContent = async <T>(
   return result[key] !== undefined ? result[key] : defaultValue;
 };
 
-// 노트 데이터 타입 정의
-export interface Note {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: number;
-  updatedAt: number;
-}
-
-// 노트 관련 함수들
 export const getNotes = async (): Promise<Note[]> => {
   const result = await chrome.storage.sync.get(['notes']);
   return result.notes || [];
