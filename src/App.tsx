@@ -1,29 +1,47 @@
-import { useEffect, useState } from 'react';
 import 'allotment/dist/style.css';
+import { useEffect, useState } from 'react';
+import { Modal, NoteEditor, NotesList, Toolbar } from './components';
+import { useFontSize, useNotes, useTheme } from './hooks';
 import './index.css';
-import { Toolbar, NotesList, NoteEditor, Modal } from './components';
-import { useTheme, useFontSize, useNotes } from './hooks';
-import { chromeStorage, debugStorage } from './utils/chromeStorage';
-import type { Note, MdScreen } from './types';
+import type { Note } from './types';
+import { debugStorage } from './utils/chromeStorage';
+
+// BlockNote 타입 정의
+interface BlockNoteContent {
+  type: string;
+  text?: string;
+}
+
+interface BlockNoteBlock {
+  id: string;
+  type: string;
+  props?: {
+    level?: number;
+    checked?: boolean;
+    language?: string;
+    [key: string]: unknown;
+  };
+  content?: BlockNoteContent[];
+}
 
 function App() {
   const { theme, toggleTheme } = useTheme();
-  const { fontSize, updateFontSize, MIN_FONT_SIZE, MAX_FONT_SIZE } = useFontSize();
-  const { 
-    notes, 
-    currentNote, 
-    storageError, 
-    createNote: createNoteHook, 
-    updateNote, 
-    updateNoteTitle, 
-    deleteNote, 
-    selectNote, 
+  const { fontSize, updateFontSize, MIN_FONT_SIZE, MAX_FONT_SIZE } =
+    useFontSize();
+  const {
+    notes,
+    currentNote,
+    storageError,
+    createNote: createNoteHook,
+    updateNote,
+    updateNoteTitle,
+    deleteNote,
+    selectNote,
     clearCurrentNote,
-    dismissStorageError 
+    dismissStorageError
   } = useNotes();
 
   const [text, setText] = useState<string | undefined>('');
-  const [mdScreen, setMdScreen] = useState<MdScreen>('edit');
   const [showNoteList, setShowNoteList] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newNoteTitle, setNewNoteTitle] = useState('');
@@ -39,13 +57,55 @@ function App() {
     }, 1200);
   };
 
+  const convertBlocksToMarkdown = (blocksJson: string): string => {
+    try {
+      const blocks: unknown = JSON.parse(blocksJson);
+      if (!Array.isArray(blocks)) {
+        return blocksJson;
+      }
+
+      return (blocks as BlockNoteBlock[])
+        .map((block) => {
+          switch (block.type) {
+            case 'heading': {
+              const level = block.props?.level || 1;
+              return `${'#'.repeat(level)} ${block.content?.[0]?.text || ''}`;
+            }
+            case 'paragraph':
+              return block.content?.[0]?.text || '';
+            case 'bulletListItem':
+              return `- ${block.content?.[0]?.text || ''}`;
+            case 'numberedListItem':
+              return `1. ${block.content?.[0]?.text || ''}`;
+            case 'checkListItem': {
+              const checked = block.props?.checked ? 'x' : ' ';
+              return `- [${checked}] ${block.content?.[0]?.text || ''}`;
+            }
+            case 'codeBlock': {
+              const language = block.props?.language || '';
+              return `\`\`\`${language}\n${block.content?.[0]?.text || ''}\n\`\`\``;
+            }
+            default:
+              return block.content?.[0]?.text || '';
+          }
+        })
+        .join('\n\n');
+    } catch (error) {
+      console.warn('Failed to convert blocks to markdown:', error);
+      return blocksJson;
+    }
+  };
+
   const downloadMarkdown = () => {
     if (!text || !currentNote) return;
 
     const title = currentNote.title || new Date().toLocaleString('ko-KR');
     const filename = `${title}.md`;
 
-    const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+    const markdownContent = convertBlocksToMarkdown(text);
+    const blob = new Blob([markdownContent], {
+      type: 'text/markdown;charset=utf-8'
+    });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = filename;
@@ -88,6 +148,68 @@ function App() {
     setText('');
   };
 
+  const convertMarkdownToBlocks = (markdown: string): string => {
+    const lines = markdown.split('\n');
+    const blocks: BlockNoteBlock[] = [];
+
+    for (const line of lines) {
+      if (line.trim() === '') {
+        continue;
+      }
+
+      if (line.startsWith('# ')) {
+        blocks.push({
+          id: `block_${Date.now()}_${Math.random()}`,
+          type: 'heading',
+          props: { level: 1 },
+          content: [{ type: 'text', text: line.substring(2) }]
+        });
+      } else if (line.startsWith('## ')) {
+        blocks.push({
+          id: `block_${Date.now()}_${Math.random()}`,
+          type: 'heading',
+          props: { level: 2 },
+          content: [{ type: 'text', text: line.substring(3) }]
+        });
+      } else if (line.startsWith('### ')) {
+        blocks.push({
+          id: `block_${Date.now()}_${Math.random()}`,
+          type: 'heading',
+          props: { level: 3 },
+          content: [{ type: 'text', text: line.substring(4) }]
+        });
+      } else if (line.startsWith('- [ ]')) {
+        blocks.push({
+          id: `block_${Date.now()}_${Math.random()}`,
+          type: 'checkListItem',
+          props: { checked: false },
+          content: [{ type: 'text', text: line.substring(5).trim() }]
+        });
+      } else if (line.startsWith('- [x]')) {
+        blocks.push({
+          id: `block_${Date.now()}_${Math.random()}`,
+          type: 'checkListItem',
+          props: { checked: true },
+          content: [{ type: 'text', text: line.substring(5).trim() }]
+        });
+      } else if (line.startsWith('- ')) {
+        blocks.push({
+          id: `block_${Date.now()}_${Math.random()}`,
+          type: 'bulletListItem',
+          content: [{ type: 'text', text: line.substring(2) }]
+        });
+      } else {
+        blocks.push({
+          id: `block_${Date.now()}_${Math.random()}`,
+          type: 'paragraph',
+          content: [{ type: 'text', text: line }]
+        });
+      }
+    }
+
+    return JSON.stringify(blocks);
+  };
+
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -96,12 +218,13 @@ function App() {
 
     if (file.type === 'text/markdown' || file.name.endsWith('.md')) {
       try {
-        const content = await file.text();
+        const markdownContent = await file.text();
         const fileName = file.name.replace('.md', '');
+        const blocksContent = convertMarkdownToBlocks(markdownContent);
 
         const note = await createNoteHook(fileName);
         if (note) {
-          await updateNote(note.id, content);
+          await updateNote(note.id, blocksContent);
         } else {
           alert('노트 생성에 실패했습니다.');
         }
@@ -139,15 +262,6 @@ function App() {
   useEffect(() => {
     const initializeData = async () => {
       try {
-        const result = await chromeStorage.get(['mdScreen']);
-
-        if (result.mdScreen) {
-          setMdScreen(result.mdScreen as MdScreen);
-        } else {
-          setMdScreen('edit');
-          await chromeStorage.set({ mdScreen: 'edit' });
-        }
-
         if (process.env.NODE_ENV === 'development') {
           debugStorage();
         }
@@ -187,7 +301,7 @@ function App() {
           <button onClick={dismissStorageError}>×</button>
         </div>
       )}
-      
+
       <Toolbar
         theme={theme}
         fontSize={fontSize}
@@ -209,7 +323,7 @@ function App() {
         onTitleChange={setEditingTitle}
         onEmailCopy={handleCopyEmail}
       />
-      
+
       <div className="editor-container">
         {showNoteList ? (
           <NotesList
@@ -224,7 +338,6 @@ function App() {
             onChange={setText}
             theme={theme}
             fontSize={fontSize}
-            mdScreen={mdScreen}
           />
         )}
       </div>

@@ -1,6 +1,19 @@
 import React from 'react';
 import type { Note } from '../types';
 
+// BlockNote 타입 정의
+interface BlockNoteContent {
+  type: string;
+  text?: string;
+}
+
+interface BlockNoteBlock {
+  id: string;
+  type: string;
+  props?: Record<string, unknown>;
+  content?: BlockNoteContent[];
+}
+
 interface NotesListProps {
   notes: Note[];
   onSelectNote: (note: Note) => void;
@@ -14,6 +27,30 @@ export const NotesList: React.FC<NotesListProps> = ({
   onDeleteNote,
   onCreateNote
 }) => {
+  const extractTextFromBlocks = (blocksJson: string): string => {
+    try {
+      const blocks = JSON.parse(blocksJson);
+      if (!Array.isArray(blocks)) {
+        return blocksJson.substring(0, 100);
+      }
+
+      return (blocks as BlockNoteBlock[])
+        .map((block) => {
+          if (block.content && Array.isArray(block.content)) {
+            return block.content
+              .filter((content) => content.type === 'text')
+              .map((content) => content.text || '')
+              .join('');
+          }
+          return '';
+        })
+        .join(' ')
+        .trim();
+    } catch {
+      return blocksJson.substring(0, 100);
+    }
+  };
+
   return (
     <div className="notes-list">
       <div className="notes-header">
@@ -35,7 +72,8 @@ export const NotesList: React.FC<NotesListProps> = ({
             >
               <div className="note-title">{note.title}</div>
               <div className="note-preview">
-                {note.content.substring(0, 100) || '내용 없음'}
+                {extractTextFromBlocks(note.content).substring(0, 100) ||
+                  '내용 없음'}
               </div>
               <div className="note-meta">
                 <span className="note-date">

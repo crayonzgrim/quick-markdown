@@ -1,21 +1,35 @@
 :root {
-  --base03: #002b36;
-  --base02: #073642;
-  --base01: #586e75;
-  --base00: #657b83;
-  --base0: #839496;
-  --base1: #93a1a1;
-  --base2: #eee8d5;
-  --base3: #fdf6e3;
+  /* Light theme (default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f8f9fa;
+  --text-primary: #1e1e2e;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  --border-color: #e9ecef;
+  --accent-primary: #0066cc;
+  --accent-primary-hover: #0052a3;
+  --accent-danger: #dc3545;
+  --accent-danger-hover: #c82333;
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 102, 204, 0.1);
+}
 
-  --yellow: #b58900;
-  --orange: #cb4b16;
-  --red: #dc322f;
-  --magenta: #d33682;
-  --violet: #6c71c4;
-  --blue: #268bd2;
-  --cyan: #2aa198;
-  --green: #859900;
+[data-color-mode='dark'] {
+  /* Dark theme - Solarized Osaka inspired */
+  --bg-primary: #1a1b26;
+  --bg-secondary: #24283b;
+  --bg-tertiary: #1f2335;
+  --text-primary: #c0caf5;
+  --text-secondary: #9aa5ce;
+  --text-muted: #565f89;
+  --border-color: #3b4261;
+  --accent-primary: #7aa2f7;
+  --accent-primary-hover: #6897f7;
+  --accent-danger: #f7768e;
+  --accent-danger-hover: #f56577;
+  --shadow-light: rgba(0, 0, 0, 0.3);
+  --shadow-medium: rgba(122, 162, 247, 0.1);
 }
 
 body {
@@ -48,27 +62,22 @@ body {
 }
 
 .title-edit input {
-  background: var(--base02);
-  color: var(--base0);
-  border: 1px solid var(--base01);
-  border-radius: 3px;
-  padding: 2px 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px 8px;
   font-size: 13px;
-  font-weight: bold;
+  font-weight: 600;
   width: 100%;
   max-width: 200px;
   text-align: center;
-}
-
-.panel.light .title-edit input {
-  background: var(--base2);
-  color: var(--base00);
-  border-color: var(--base1);
+  transition: border-color 0.2s;
 }
 
 .title-edit input:focus {
   outline: none;
-  border-color: var(--blue);
+  border-color: var(--accent-primary);
 }
 
 .panel {
@@ -77,69 +86,63 @@ body {
   height: 100vh;
 }
 
-.panel.dark {
-  background-color: var(--base03);
-  color: var(--base0);
-}
-
-.panel.light {
-  background-color: var(--base3);
-  color: var(--base00);
+.panel {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .toolbar {
   padding: 4px 8px;
   display: flex;
   gap: 4px;
-  background-color: var(--base02);
-  border-bottom: 1px solid var(--base01);
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
   align-items: center;
+  box-shadow: 0 2px 4px var(--shadow-light);
 }
 
 .toolbar button {
   padding: 3px 6px;
-  background-color: var(--base01);
-  color: var(--base3);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
   border: none;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 6px;
   font-size: 12px;
   min-width: 24px;
   height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s;
 }
 
-.panel.light .toolbar {
-  background-color: var(--base2);
-  border-color: var(--base1);
-}
-
-.panel.light .toolbar button {
-  background-color: var(--base1);
-  color: var(--base03);
+.toolbar button:hover {
+  background-color: var(--accent-primary);
+  color: white;
 }
 
 .toolbar label {
   padding: 3px 6px;
-  background-color: var(--base01);
-  color: var(--base3);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
   border: none;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 6px;
   font-size: 12px;
   min-width: 24px;
   height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s;
 }
 
-.panel.light .toolbar label {
-  background-color: var(--base1);
-  color: var(--base03);
+.toolbar label:hover {
+  background-color: var(--accent-primary);
+  color: white;
 }
 
 .spacer {
@@ -167,15 +170,10 @@ body {
   z-index: 1000;
 }
 
-.panel.dark #popover {
-  background: var(--base02);
-  color: var(--base0);
-}
-
-.panel.light #popover {
-  background: var(--base2);
-  color: var(--base00);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+#popover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 0 10px var(--shadow-light);
 }
 
 .popover-item {
@@ -201,7 +199,7 @@ body {
   width: 50px;
   padding: 4px 6px;
   border: none;
-  border-bottom: 1px solid var(--base1);
+  border-bottom: 1px solid var(--border-color);
   background: transparent;
   color: inherit;
   font-size: 12px;
@@ -211,7 +209,7 @@ body {
 
 .input-group span {
   font-size: 12px;
-  color: var(--base1);
+  color: var(--text-secondary);
 }
 
 .contact-info {
@@ -239,96 +237,102 @@ body {
   overflow: hidden;
 }
 
-/* MDEditor preview 스크롤 지원 */
-.w-md-editor-preview {
-  overflow: auto !important;
+/* BlockNote Editor Styles */
+.panel .bn-container {
+  height: 100%;
+  overflow: auto;
 }
 
-.wmde-markdown {
-  overflow: auto !important;
-  padding-bottom: 20px !important;
-  box-sizing: border-box !important;
-}
-
-/* Allotment 패널의 높이도 조정 */
-.split-view-container .allotment-pane {
-  height: 100% !important;
-}
-
-/* MDEditor 전체 컨테이너 높이 조정 */
-.w-md-editor {
-  height: 100% !important;
-}
-
-/* 에디터와 프리뷰 폰트 사이즈 적용 */
-.panel .w-md-editor,
-.panel .w-md-editor *,
-.panel .w-md-editor .w-md-editor-text-textarea,
-.panel .w-md-editor .w-md-editor-text-input,
-.panel .w-md-editor .w-md-editor-text,
-.panel .w-md-editor .w-md-editor-preview,
-.panel .wmde-markdown,
-.panel .wmde-markdown * {
-  font-size: var(--editor-font-size, 14px) !important;
+.panel .bn-editor {
   font-family: 'JetBrains Mono', monospace !important;
-}
-
-/* 프리뷰 영역 기본 폰트 설정 */
-.panel .wmde-markdown {
   font-size: var(--editor-font-size, 14px) !important;
-  font-family: 'JetBrains Mono', monospace !important;
 }
 
-/* 헤딩은 기본 폰트 사이즈 기준으로 상대적 크기 적용 */
-.panel .wmde-markdown h1 {
+/* BlockNote Editor Dark Mode Overrides */
+[data-color-mode='dark'] .bn-container {
+  --bn-colors-editor-background: var(--bg-primary);
+  --bn-colors-editor-text: var(--text-primary);
+  --bn-colors-menu-background: var(--bg-secondary);
+  --bn-colors-menu-text: var(--text-primary);
+  --bn-colors-tooltip-background: var(--bg-secondary);
+  --bn-colors-tooltip-text: var(--text-primary);
+  --bn-colors-hovered-background: var(--bg-tertiary);
+  --bn-colors-selected-background: var(--accent-primary);
+  --bn-colors-disabled-background: var(--bg-tertiary);
+  --bn-colors-shadow: var(--shadow-light);
+  --bn-colors-border: var(--border-color);
+  --bn-colors-side-menu: var(--text-secondary);
+}
+
+/* BlockNote theme overrides */
+.panel .bn-editor {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* BlockNote blocks styling */
+.panel .bn-block-content {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: var(--editor-font-size, 14px) !important;
+}
+
+.panel .bn-inline-content {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: var(--editor-font-size, 14px) !important;
+}
+
+/* BlockNote drag handle */
+.panel .bn-drag-handle {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* BlockNote side menu */
+.panel .bn-side-menu {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* BlockNote toolbar */
+.panel .bn-toolbar {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* BlockNote headings with relative sizing */
+.panel .bn-editor h1 {
   font-size: calc(var(--editor-font-size, 14px) * 2.25) !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 
-.panel .wmde-markdown h2 {
+.panel .bn-editor h2 {
   font-size: calc(var(--editor-font-size, 14px) * 1.875) !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 
-.panel .wmde-markdown h3 {
+.panel .bn-editor h3 {
   font-size: calc(var(--editor-font-size, 14px) * 1.5) !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 
-.panel .wmde-markdown h4 {
+.panel .bn-editor h4 {
   font-size: calc(var(--editor-font-size, 14px) * 1.25) !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 
-.panel .wmde-markdown h5 {
+.panel .bn-editor h5 {
   font-size: calc(var(--editor-font-size, 14px) * 1.125) !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 
-.panel .wmde-markdown h6 {
+.panel .bn-editor h6 {
   font-size: var(--editor-font-size, 14px) !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 
-.panel .wmde-markdown p,
-.panel .wmde-markdown li,
-.panel .wmde-markdown code,
-.panel .wmde-markdown pre,
-.panel .wmde-markdown blockquote,
-.panel .wmde-markdown span,
-.panel .wmde-markdown div {
-  font-family: 'JetBrains Mono', monospace !important;
-}
-
-/* 에디터 텍스트 영역 직접 타겟팅 */
-.panel textarea.w-md-editor-text-textarea {
-  font-size: var(--editor-font-size, 12px) !important;
-  font-family: 'JetBrains Mono', monospace !important;
-}
-
 .storage-error {
-  background-color: var(--red);
-  color: var(--base3);
+  background-color: var(--accent-danger);
+  color: white;
   padding: 8px 12px;
   font-size: 12px;
   display: flex;
@@ -339,7 +343,7 @@ body {
 .storage-error button {
   background: none;
   border: none;
-  color: var(--base3);
+  color: white;
   font-size: 16px;
   cursor: pointer;
   padding: 0 4px;
@@ -354,21 +358,17 @@ body {
 
 .notes-header {
   padding: 16px;
-  border-bottom: 1px solid var(--base01);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.panel.light .notes-header {
-  border-color: var(--base1);
-}
-
 .create-note-btn {
   width: 100%;
   padding: 12px;
-  background-color: var(--blue);
-  color: var(--base3);
+  background-color: var(--accent-primary);
+  color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -378,20 +378,20 @@ body {
 }
 
 .create-note-btn:hover {
-  background-color: var(--cyan);
+  background-color: var(--accent-primary-hover);
 }
 
 .upload-btn {
   width: 100%;
   padding: 12px;
-  background-color: var(--green);
-  color: var(--base3);
-  border: none;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -399,7 +399,9 @@ body {
 }
 
 .upload-btn:hover {
-  background-color: var(--yellow);
+  background-color: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
 }
 
 .notes-items {
@@ -410,59 +412,45 @@ body {
 
 .empty-notes {
   text-align: center;
-  color: var(--base1);
+  color: var(--text-secondary);
   padding: 40px 20px;
   font-style: italic;
 }
 
 .note-item {
   padding: 12px;
-  border: 1px solid var(--base01);
-  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   margin-bottom: 8px;
   cursor: pointer;
-  transition:
-    background-color 0.2s,
-    border-color 0.2s;
-}
-
-.panel.light .note-item {
-  border-color: var(--base1);
+  background-color: var(--bg-secondary);
+  transition: all 0.2s;
 }
 
 .note-item:hover {
-  background-color: var(--base02);
-  border-color: var(--base00);
-}
-
-.panel.light .note-item:hover {
-  background-color: var(--base2);
-  border-color: var(--base0);
+  border-color: var(--accent-primary);
+  box-shadow: 0 2px 8px var(--shadow-medium);
 }
 
 .note-title {
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 4px;
-  color: var(--base1);
-  font-size: 14px;
-}
-
-.panel.light .note-title {
-  color: var(--base01);
-}
-
-.note-preview {
-  font-size: 12px;
-  color: var(--base0);
-  margin-bottom: 8px;
-  line-height: 1.4;
-  white-space: pre-wrap;
+  color: var(--text-primary);
+  font-size: 16px;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.panel.light .note-preview {
-  color: var(--base00);
+.note-preview {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .note-meta {
@@ -472,12 +460,8 @@ body {
 }
 
 .note-date {
-  font-size: 11px;
-  color: var(--base01);
-}
-
-.panel.light .note-date {
-  color: var(--base1);
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .delete-btn {
@@ -486,12 +470,19 @@ body {
   cursor: pointer;
   padding: 4px;
   font-size: 14px;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  transition: all 0.2s;
+  opacity: 0;
+}
+
+.note-item:hover .delete-btn {
+  opacity: 1;
 }
 
 .delete-btn:hover {
-  opacity: 1;
+  background-color: var(--bg-tertiary);
+  color: var(--accent-danger);
 }
 
 /* 모달 스타일 */
@@ -509,47 +500,35 @@ body {
 }
 
 .modal {
-  background-color: var(--base02);
+  background-color: var(--bg-secondary);
   padding: 24px;
   border-radius: 8px;
   min-width: 300px;
   max-width: 500px;
-}
-
-.panel.light .modal {
-  background-color: var(--base2);
+  box-shadow: 0 10px 25px var(--shadow-light);
 }
 
 .modal h3 {
   margin: 0 0 16px 0;
-  color: var(--base1);
-}
-
-.panel.light .modal h3 {
-  color: var(--base01);
+  color: var(--text-primary);
 }
 
 .modal input {
   width: 100%;
   padding: 8px;
-  border: 1px solid var(--base01);
-  border-radius: 4px;
-  background-color: var(--base03);
-  color: var(--base0);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
   font-size: 14px;
   margin-bottom: 16px;
   box-sizing: border-box;
-}
-
-.panel.light .modal input {
-  border-color: var(--base1);
-  background-color: var(--base3);
-  color: var(--base00);
+  transition: border-color 0.2s;
 }
 
 .modal input:focus {
   outline: none;
-  border-color: var(--blue);
+  border-color: var(--accent-primary);
 }
 
 .modal-buttons {
@@ -561,54 +540,64 @@ body {
 .modal-buttons button {
   padding: 8px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .modal-buttons button:first-child {
-  background-color: var(--base01);
-  color: var(--base1);
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 
-.panel.light .modal-buttons button:first-child {
-  background-color: var(--base1);
-  color: var(--base01);
+.modal-buttons button:first-child:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .modal-buttons button:last-child {
-  background-color: var(--blue);
-  color: var(--base3);
+  background-color: var(--accent-primary);
+  color: white;
 }
 
-.modal-buttons button:hover {
-  opacity: 0.8;
+.modal-buttons button:last-child:hover {
+  background-color: var(--accent-primary-hover);
 }
 
 .file-info {
   padding: 12px;
-  background-color: var(--base01);
-  border-radius: 4px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
   margin-bottom: 16px;
   text-align: center;
 }
 
-.panel.light .file-info {
-  background-color: var(--base1);
-}
-
 .file-info strong {
-  color: var(--base1);
-}
-
-.panel.light .file-info strong {
-  color: var(--base01);
+  color: var(--text-primary);
 }
 
 .file-info small {
-  color: var(--base0);
+  color: var(--text-secondary);
 }
 
-.panel.light .file-info small {
-  color: var(--base00);
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
