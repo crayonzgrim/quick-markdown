@@ -10,4 +10,4 @@
 - [x] 로그인 없이 사용할 수 있는 chrome.storage.local 저장
 - [ ] 로그인이 필요한 연동을 위한 Google Drive 저장 또는 chrome.storage.sync 압축 전송
 - [ ] 테마 추가
-- [x] blocknote로 라이브러리 변경
+- [x] [blocknote](https://www.blocknotejs.org/)로 라이브러리 변경
